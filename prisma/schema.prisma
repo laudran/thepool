@@ -1,0 +1,201 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+enum ContractType {
+  TREATMENT
+  CLEANING
+  OPENING
+  CLOSING
+}
+
+enum ClientStatus {
+  PENDING
+  ACTIVE
+  TERMINATED
+}
+
+enum ContractStatus {
+  PENDING
+  ACTIVE
+  END_SCHEDULED
+  TERMINATED
+}
+
+enum PoolFillingType {
+  TIMER
+  RAM
+  RAB
+  RAS
+  MANUAL
+}
+
+enum PersonPresenceFrequency {
+  YEARLY
+  RENT
+  PERIODICALLY
+}
+
+enum PoolPersonScheduleType {
+  PRESENCE
+  ABSENCE
+}
+
+enum PoolType {
+  OVERFLOWING
+  CLASSIC
+}
+
+model Client {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  contracts Contract[]
+  name String
+  firstName String
+  phone String
+  address String
+  createdAt DateTime
+  updatedAt DateTime
+  status ClientStatus @default(ACTIVE)
+}
+
+model Contract {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  client Client @relation(fields: [clientId], references: [id])
+  clientId BigInt
+  contractType ContractType @default(TREATMENT)
+  status ContractStatus @default(PENDING)
+  pool Pool @relation(fields: [poolId], references: [id])
+  poolId BigInt
+  startDate DateTime
+  endDate DateTime
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Pool {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  size Int?
+  chemicals String?
+  fillingType PoolFillingType
+  hasTarp Boolean
+  tarpTtype String?
+  hasStore Boolean
+  storeType String?
+  poolType PoolType @default(CLASSIC)
+  hasSalt Boolean
+  saltOn Boolean
+  persons Person[]
+  contract Contract[]
+  createdAt DateTime
+  updatedAt DateTime
+  plumber Plumber @relation(fields: [plumberId], references: [id])
+  plumberId BigInt
+  electrician Electrician @relation(fields: [electricianId], references: [id])
+  electricianId BigInt
+}
+
+model Person {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  pool Pool @relation(fields: [poolId], references: [id])
+  poolId BigInt
+  name String
+  firstName String
+  phone String
+  country String
+  isContact Boolean
+  isEmergencyContact Boolean
+  frequency PersonPresenceFrequency @default(YEARLY)
+  schedule PoolPersonSchedule[]
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model PoolPersonSchedule {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  person Person @relation(fields: [personId], references: [id])
+  personId BigInt
+  type PoolPersonScheduleType @default(PRESENCE)
+  emergencyContact Boolean
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Plumber {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  name String @unique
+  phone String 
+  email String?
+  address String?
+  pools Pool[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model Electrician {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  name String @unique
+  phone String
+  email String?
+  address String?
+  pools Pool[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model Organization {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  name String @unique
+  email String?
+  addressLine String
+  addressComplement String
+  zipCode String
+  country String
+  users User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model User {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  name String
+  firstName String
+  email String @unique
+  password String
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId BigInt
+  roles String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model Admin {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  name String
+  firstName String
+  email String @unique
+  password String
+  roles String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}

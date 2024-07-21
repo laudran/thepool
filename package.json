@@ -1,0 +1,41 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "build-vercel": "NITRO_PRESET=vercel nuxi build"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.17.0",
+    "@prisma/extension-accelerate": "^1.1.0",
+    "@vite-pwa/assets-generator": "^0.2.4",
+    "@vite-pwa/nuxt": "^0.7.0",
+    "nuxt": "^3.12.4",
+    "vite-plugin-pwa": "^0.20.0",
+    "vue": "latest",
+    "workbox-build": "^7.1.0",
+    "workbox-core": "^7.1.0",
+    "workbox-precaching": "^7.1.0",
+    "workbox-routing": "^7.1.0",
+    "workbox-strategies": "^7.1.0",
+    "workbox-window": "^7.1.0"
+  },
+  "packageManager": "pnpm@8.14.1+sha512.856c4ecd97c5d3f30354ebc373cd32fb37274295c489db2d0f613a1e60f010cadfbb15036d525f3a06dec1897e4219b3c4f6d3be8f2f62fb0a366bee6aaa7533",
+  "devDependencies": {
+    "@cssninja/nuxt-toaster": "^0.3.12",
+    "@shuriken-ui/nuxt": "^3.3.0",
+    "prisma": "^5.17.0",
+    "tailwindcss": "^3.4.6",
+    "typescript": "^5.4.5",
+    "vue-tsc": "^2.0.16"
+  },
+  "resolutions": {
+    "sharp": "0.32.6",
+    "sharp-ico": "0.1.5"
+  }
+}

@@ -1,0 +1,7 @@
+version: "1"
+services:
+  database:
+    image: cockroachdb/cockroach:v24.1.2
+    ports:
+      - "26257:26257"
+      - "8080:8080"
