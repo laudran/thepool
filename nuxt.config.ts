@@ -1,30 +1,29 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  alias: {
+    "@Types": "./types",
+  },
+  compatibilityDate: "2024-07-21",
+  devtools: { enabled: true },
+  experimental: {
+    payloadExtraction: true,
+  },
   extends: [
     "gh:cssninjaStudio/tairo/layers/tairo#v1.5.1",
     "gh:cssninjaStudio/tairo/layers/tairo-layout-sidebar#v1.5.1",
   ],
-  alias: {
-    "@Types": "./types",
-  },
-  typescript: {
-    tsConfig: {
-      exclude: ["../service-worker"],
-    },
-    typeCheck: false,
-    strict: true,
-  },
-
-  devtools: { enabled: true },
-
+  modules: ["@vite-pwa/nuxt", "@prisma/nuxt", "@pinia/nuxt"],
   nitro: {
     prerender: {
       routes: ["/"],
     },
   },
-
-  modules: ["@vite-pwa/nuxt", "@prisma/nuxt"],
-
+  pinia: {
+    storesDirs: ["./stores/**"],
+  },
+  prisma: {
+    autoSetupPrisma: true,
+  },
   pwa: {
     registerType: "prompt",
     injectRegister: false,
@@ -96,17 +95,15 @@ export default defineNuxtConfig({
       installPrompt: true,
     },
   },
-
   runtimeConfig: {
     jwtPrivateKey: "",
     jwtPublicKey: "",
   },
-
-  experimental: {
-    payloadExtraction: true,
+  typescript: {
+    tsConfig: {
+      exclude: ["../service-worker"],
+    },
+    typeCheck: false,
+    strict: true,
   },
-  prisma: {
-    autoSetupPrisma: true,
-  },
-  compatibilityDate: "2024-07-21",
 });

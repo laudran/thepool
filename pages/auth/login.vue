@@ -2,6 +2,7 @@
 import { toTypedSchema } from "@vee-validate/zod";
 import { Field, useForm } from "vee-validate";
 import { z } from "zod";
+import { useMyProfileStore } from "~/stores/profile";
 
 definePageMeta({
   layout: "empty",
@@ -34,7 +35,6 @@ const VALIDATION_TEXT = {
 const zodSchema = z.object({
   email: z.string().email(VALIDATION_TEXT.EMAIL_REQUIRED),
   password: z.string().min(1, VALIDATION_TEXT.PASSWORD_REQUIRED),
-  trustDevice: z.boolean(),
 });
 
 // Zod has a great infer method that will
@@ -45,7 +45,6 @@ const validationSchema = toTypedSchema(zodSchema);
 const initialValues = {
   email: "",
   password: "",
-  trustDevice: false,
 } satisfies FormInput;
 
 const {
@@ -65,6 +64,7 @@ const {
 
 const router = useRouter();
 const toaster = useToaster();
+const profile = useMyProfileStore();
 
 // This is where you would send the form data to the server
 const onSubmit = handleSubmit(async (values) => {
@@ -73,6 +73,7 @@ const onSubmit = handleSubmit(async (values) => {
 
   try {
     // fake delay, this will make isSubmitting value to be true
+    console.log(await profile.authenticate(values));
     await new Promise((resolve, reject) => {
       if (values.password !== "password") {
         // simulate a backend error
@@ -238,21 +239,6 @@ const onSubmit = handleSubmit(async (values) => {
 
               <!--Remember-->
               <div class="mt-6 flex items-center justify-between">
-                <Field
-                  v-slot="{ field, handleChange, handleBlur }"
-                  name="trustDevice"
-                >
-                  <BaseCheckbox
-                    :model-value="field.value"
-                    :disabled="isSubmitting"
-                    rounded="lg"
-                    label="Trust for 60 days"
-                    color="primary"
-                    @update:model-value="handleChange"
-                    @blur="handleBlur"
-                  />
-                </Field>
-
                 <div class="text-xs leading-5">
                   <NuxtLink
                     to="/auth/recover"
