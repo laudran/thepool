@@ -1,7 +1,14 @@
-version: "1"
 services:
   database:
     image: cockroachdb/cockroach:v24.1.2
     ports:
       - "26257:26257"
       - "8080:8080"
+    command: start-single-node --certs-dir=certs
+    volumes:
+      - "${PWD}/cockroach-data/crdb:/cockroach/cockroach-data"
+      - "${PWD}/certs:/cockroach/certs"
+    environment:
+      COCKROACH_DATABASE: poolside
+      COCKROACH_USER: development
+      COCKROACH_PASSWORD: development

@@ -8,6 +8,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource db {
   provider = "cockroachdb"
   url      = env("DATABASE_URL")
@@ -41,6 +45,14 @@ enum PoolFillingType {
   MANUAL
 }
 
+enum EmployeeRole {
+  OWNER
+  MANAGER
+  ACCOUNTANT
+  ADMIN
+  USER
+}
+
 enum PersonPresenceFrequency {
   YEARLY
   RENT
@@ -61,13 +73,15 @@ model Client {
   id BigInt @id @default(autoincrement())
   externalId String @default(uuid())
   contracts Contract[]
-  name String
-  firstName String
-  phone String
-  address String
+  userId BigInt @unique
+  owner User @relation(name: "ClientOwner",fields: [userId], references: [id])
   createdAt DateTime
-  updatedAt DateTime
+  updatedAt DateTime?
   status ClientStatus @default(ACTIVE)
+  users User[] @relation("ClientUsers")
+  organizationId BigInt
+  organization Organization @relation(fields: [organizationId], references: [id])
+  @@map(name:"client")
 }
 
 model Contract {
@@ -82,7 +96,8 @@ model Contract {
   startDate DateTime
   endDate DateTime
   createdAt DateTime
-  updatedAt DateTime
+  updatedAt DateTime?
+  @@map(name:"contract")
 }
 
 model Pool {
@@ -101,11 +116,12 @@ model Pool {
   persons Person[]
   contract Contract[]
   createdAt DateTime
-  updatedAt DateTime
+  updatedAt DateTime?
   plumber Plumber @relation(fields: [plumberId], references: [id])
   plumberId BigInt
   electrician Electrician @relation(fields: [electricianId], references: [id])
   electricianId BigInt
+  @@map("pool")
 }
 
 model Person {
@@ -122,7 +138,8 @@ model Person {
   frequency PersonPresenceFrequency @default(YEARLY)
   schedule PoolPersonSchedule[]
   createdAt DateTime
-  updatedAt DateTime
+  updatedAt DateTime?
+  @@map("person")
 }
 
 model PoolPersonSchedule {
@@ -133,7 +150,8 @@ model PoolPersonSchedule {
   type PoolPersonScheduleType @default(PRESENCE)
   emergencyContact Boolean
   createdAt DateTime
-  updatedAt DateTime
+  updatedAt DateTime?
+  @@map("pool_person_schedule")
 }
 
 model Plumber {
@@ -145,7 +163,8 @@ model Plumber {
   address String?
   pools Pool[]
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime?
+  @@map("plumber")
 }
 
 model Electrician {
@@ -157,21 +176,54 @@ model Electrician {
   address String?
   pools Pool[]
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime?
+  @@map("electrician")
 }
 
 model Organization {
   id BigInt @id @default(autoincrement())
   externalId String @default(uuid())
   name String @unique
-  email String?
+  email String
   addressLine String
-  addressComplement String
+  addressComplement String?
   zipCode String
   country String
-  users User[]
+  users Employee[]
+  clients Client[]
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime?
+  @@map("organization")
+}
+
+model Employee {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  name String
+  firstName String
+  lastName String
+  email String @unique
+  password String
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId BigInt
+  roles EmployeeRole[] @default([USER])
+  createdAt DateTime @default(now())
+  updatedAt DateTime?
+  @@map("employee")
+}
+
+model Admin {
+  id BigInt @id @default(autoincrement())
+  externalId String @default(uuid())
+  name String
+  firstName String
+  lastName String
+  email String @unique
+  password String
+  roles String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime?
+  @@map("admin")
 }
 
 model User {
@@ -181,21 +233,7 @@ model User {
   firstName String
   email String @unique
   password String
-  organization Organization @relation(fields: [organizationId], references: [id])
-  organizationId BigInt
-  roles String[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-}
-
-model Admin {
-  id BigInt @id @default(autoincrement())
-  externalId String @default(uuid())
-  name String
-  firstName String
-  email String @unique
-  password String
-  roles String[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime
+  owner Client? @relation("ClientOwner")
+  client Client[] @relation("ClientUsers")
+  @@map("user")
 }

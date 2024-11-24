@@ -1,0 +1,236 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table client {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  contracts contract [not null]
+  userId BigInt [unique, not null]
+  owner user [not null]
+  createdAt DateTime [not null]
+  updatedAt DateTime
+  status ClientStatus [not null, default: 'ACTIVE']
+  users user [not null]
+  organizationId BigInt [not null]
+  organization organization [not null]
+}
+
+Table contract {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  client client [not null]
+  clientId BigInt [not null]
+  contractType ContractType [not null, default: 'TREATMENT']
+  status ContractStatus [not null, default: 'PENDING']
+  pool pool [not null]
+  poolId BigInt [not null]
+  startDate DateTime [not null]
+  endDate DateTime [not null]
+  createdAt DateTime [not null]
+  updatedAt DateTime
+}
+
+Table pool {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  size Int
+  chemicals String
+  fillingType PoolFillingType [not null]
+  hasTarp Boolean [not null]
+  tarpTtype String
+  hasStore Boolean [not null]
+  storeType String
+  poolType PoolType [not null, default: 'CLASSIC']
+  hasSalt Boolean [not null]
+  saltOn Boolean [not null]
+  persons person [not null]
+  contract contract [not null]
+  createdAt DateTime [not null]
+  updatedAt DateTime
+  plumber plumber [not null]
+  plumberId BigInt [not null]
+  electrician electrician [not null]
+  electricianId BigInt [not null]
+}
+
+Table person {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  pool pool [not null]
+  poolId BigInt [not null]
+  name String [not null]
+  firstName String [not null]
+  phone String [not null]
+  country String [not null]
+  isContact Boolean [not null]
+  isEmergencyContact Boolean [not null]
+  frequency PersonPresenceFrequency [not null, default: 'YEARLY']
+  schedule pool_person_schedule [not null]
+  createdAt DateTime [not null]
+  updatedAt DateTime
+}
+
+Table pool_person_schedule {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  person person [not null]
+  personId BigInt [not null]
+  type PoolPersonScheduleType [not null, default: 'PRESENCE']
+  emergencyContact Boolean [not null]
+  createdAt DateTime [not null]
+  updatedAt DateTime
+}
+
+Table plumber {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  name String [unique, not null]
+  phone String [not null]
+  email String
+  address String
+  pools pool [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+}
+
+Table electrician {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  name String [unique, not null]
+  phone String [not null]
+  email String
+  address String
+  pools pool [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+}
+
+Table organization {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  name String [unique, not null]
+  email String [not null]
+  addressLine String [not null]
+  addressComplement String
+  zipCode String [not null]
+  country String [not null]
+  users employee [not null]
+  clients client [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+}
+
+Table employee {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  name String [not null]
+  firstName String [not null]
+  lastName String [not null]
+  email String [unique, not null]
+  password String [not null]
+  organization organization [not null]
+  organizationId BigInt [not null]
+  roles EmployeeRole[] [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+}
+
+Table admin {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  name String [not null]
+  firstName String [not null]
+  lastName String [not null]
+  email String [unique, not null]
+  password String [not null]
+  roles String[] [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+}
+
+Table user {
+  id BigInt [pk, increment]
+  externalId String [not null]
+  name String [not null]
+  firstName String [not null]
+  email String [unique, not null]
+  password String [not null]
+  owner client
+  client client [not null]
+}
+
+Table ClientUsers {
+  usersId BigInt [ref: > user.id]
+  clientId BigInt [ref: > client.id]
+}
+
+Enum ContractType {
+  TREATMENT
+  CLEANING
+  OPENING
+  CLOSING
+}
+
+Enum ClientStatus {
+  PENDING
+  ACTIVE
+  TERMINATED
+}
+
+Enum ContractStatus {
+  PENDING
+  ACTIVE
+  END_SCHEDULED
+  TERMINATED
+}
+
+Enum PoolFillingType {
+  TIMER
+  RAM
+  RAB
+  RAS
+  MANUAL
+}
+
+Enum EmployeeRole {
+  OWNER
+  MANAGER
+  ACCOUNTANT
+  ADMIN
+  USER
+}
+
+Enum PersonPresenceFrequency {
+  YEARLY
+  RENT
+  PERIODICALLY
+}
+
+Enum PoolPersonScheduleType {
+  PRESENCE
+  ABSENCE
+}
+
+Enum PoolType {
+  OVERFLOWING
+  CLASSIC
+}
+
+Ref: client.userId - user.id
+
+Ref: client.organizationId > organization.id
+
+Ref: contract.clientId > client.id
+
+Ref: contract.poolId > pool.id
+
+Ref: pool.plumberId > plumber.id
+
+Ref: pool.electricianId > electrician.id
+
+Ref: person.poolId > pool.id
+
+Ref: pool_person_schedule.personId > person.id
+
+Ref: employee.organizationId > organization.id

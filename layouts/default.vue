@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { SpeedInsights } from "@vercel/speed-insights/nuxt";
 // you can extract the <ClientOnly> component to a separate file
 </script>
 
@@ -6,45 +7,46 @@
   <main>
     <TairoSidebarLayout>
       <slot />
-      <ClientOnly>
-        <div
-          v-if="$pwa?.offlineReady || $pwa?.needRefresh"
-          class="pwa-toast"
-          role="alert"
-          aria-labelledby="toast-message"
-        >
-          <div class="message">
-            <span id="toast-message">
-              {{
-                $pwa.offlineReady
-                  ? "App ready to work offline"
-                  : "New content available, click on reload button to update"
-              }}
-            </span>
-          </div>
-          <div class="buttons">
-            <button v-if="$pwa.needRefresh" @click="$pwa.updateServiceWorker()">
-              Reload
-            </button>
-            <button @click="$pwa.cancelPrompt()">Close</button>
-          </div>
-        </div>
-        <div
-          v-if="
-            $pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh
-          "
-          class="pwa-toast"
-          role="alert"
-          aria-labelledby="install-pwa"
-        >
-          <div class="message">
-            <span id="install-pwa"> Install PWA </span>
-          </div>
-          <button @click="$pwa.install()">Install</button>
-          <button @click="$pwa.cancelInstall()">Cancel</button>
-        </div>
-      </ClientOnly>
     </TairoSidebarLayout>
+    <ClientOnly>
+      <div
+        v-if="$pwa?.offlineReady || $pwa?.needRefresh"
+        class="pwa-toast"
+        role="alert"
+        aria-labelledby="toast-message"
+      >
+        <div class="message">
+          <span id="toast-message">
+            {{
+              $pwa.offlineReady
+                ? "App ready to work offline"
+                : "New content available, click on reload button to update"
+            }}
+          </span>
+        </div>
+        <div class="buttons">
+          <button v-if="$pwa.needRefresh" @click="$pwa.updateServiceWorker()">
+            Reload
+          </button>
+          <button @click="$pwa.cancelPrompt()">Close</button>
+        </div>
+      </div>
+      <div
+        v-if="
+          $pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh
+        "
+        class="pwa-toast"
+        role="alert"
+        aria-labelledby="install-pwa"
+      >
+        <div class="message">
+          <span id="install-pwa"> Install PWA </span>
+        </div>
+        <button @click="$pwa.install()">Install</button>
+        <button @click="$pwa.cancelInstall()">Cancel</button>
+      </div>
+    </ClientOnly>
+    <SpeedInsights />
   </main>
 </template>
 
